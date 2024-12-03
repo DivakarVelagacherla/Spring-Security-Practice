@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Service
 public class JwtUtilImpl implements JwtUtil {
@@ -25,6 +26,17 @@ public class JwtUtilImpl implements JwtUtil {
                 .setSubject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getSigninKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    @Override
+    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 7))
                 .signWith(getSigninKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -60,4 +72,6 @@ public class JwtUtilImpl implements JwtUtil {
         String userName = extractUserName(token);
         return (userDetails.getUsername().equals(userName) && isTokenExpired(token));
     }
+
+
 }

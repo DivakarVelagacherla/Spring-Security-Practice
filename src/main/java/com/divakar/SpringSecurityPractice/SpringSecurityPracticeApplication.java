@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 public class SpringSecurityPracticeApplication implements CommandLineRunner {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringSecurityPracticeApplication.class, args);
@@ -28,7 +31,7 @@ public class SpringSecurityPracticeApplication implements CommandLineRunner {
 			admin.setFirstName("admin");
 			admin.setLastName("admin");
 			admin.setEmail("admin@gmail.com");
-			admin.setPassword("admin");
+			admin.setPassword(passwordEncoder.encode("admin"));
 			admin.setRole(Role.ADMIN);
 
 			userRepository.save(admin);

@@ -6,6 +6,7 @@ import com.divakar.SpringSecurityPractice.Repository.UserRepository;
 import com.divakar.SpringSecurityPractice.Service.AuthenticationService;
 import com.divakar.SpringSecurityPractice.Service.JwtUtil;
 import com.divakar.SpringSecurityPractice.dto.JwtAuthenticationResponse;
+import com.divakar.SpringSecurityPractice.dto.RefreshTokenRequest;
 import com.divakar.SpringSecurityPractice.dto.SignInRequest;
 import com.divakar.SpringSecurityPractice.dto.SignUpRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +59,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return jwtAuthenticationResponse;
     }
 
+    public JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
+        String userName = jwtUtil.extractUserName(refreshTokenRequest.getToken());
+        UserDetails user = userRepository.findByEmail(userName).orElseThrow();
+        if (jwtUtil.validateToken(refreshTokenRequest.getToken(),user)){
+            String token = jwtUtil.generateToken(user);
+            JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
+            jwtAuthenticationResponse.setToken(token);
+            jwtAuthenticationResponse.setRefreshToken(refreshTokenRequest.getToken());
+            return jwtAuthenticationResponse;
+        }
 
+        return null;
+    }
 }
